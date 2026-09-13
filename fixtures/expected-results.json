@@ -1,0 +1,546 @@
+{
+  "why": [
+    "A declared status may be a single value or a LIST of acceptable ones.",
+    "Every case declares [\"Passed\",\"Blocked\"]: the invariant held, or a source was unreachable and nothing was measured. What no list contains is Failed.",
+    "mini-eats cases (DB, API, FE) are deterministic against the local service and its SQLite; they grade Blocked only when the service is not running.",
+    "TheMealDB cases grade Blocked when the live API or the network is unavailable -- an outage is never the menu being wrong.",
+    "No case is declared Failed: nothing here is currently failing, and manufacturing a failure to have one would be dishonest."
+  ],
+  "summary": {
+    "total": 132,
+    "Passed": 132,
+    "Failed": 0,
+    "Blocked": 0,
+    "note": "nominal: mini-eats running and seeded, TheMealDB reachable, a browser available for the FE tier"
+  },
+  "cases": {
+    "1": [
+      "Passed",
+      "Blocked"
+    ],
+    "2": [
+      "Passed",
+      "Blocked"
+    ],
+    "3": [
+      "Passed",
+      "Blocked"
+    ],
+    "4": [
+      "Passed",
+      "Blocked"
+    ],
+    "5": [
+      "Passed",
+      "Blocked"
+    ],
+    "6": [
+      "Passed",
+      "Blocked"
+    ],
+    "7": [
+      "Passed",
+      "Blocked"
+    ],
+    "8": [
+      "Passed",
+      "Blocked"
+    ],
+    "9": [
+      "Passed",
+      "Blocked"
+    ],
+    "10": [
+      "Passed",
+      "Blocked"
+    ],
+    "11": [
+      "Passed",
+      "Blocked"
+    ],
+    "12": [
+      "Passed",
+      "Blocked"
+    ],
+    "13": [
+      "Passed",
+      "Blocked"
+    ],
+    "14": [
+      "Passed",
+      "Blocked"
+    ],
+    "15": [
+      "Passed",
+      "Blocked"
+    ],
+    "16": [
+      "Passed",
+      "Blocked"
+    ],
+    "17": [
+      "Passed",
+      "Blocked"
+    ],
+    "18": [
+      "Passed",
+      "Blocked"
+    ],
+    "19": [
+      "Passed",
+      "Blocked"
+    ],
+    "20": [
+      "Passed",
+      "Blocked"
+    ],
+    "21": [
+      "Passed",
+      "Blocked"
+    ],
+    "22": [
+      "Passed",
+      "Blocked"
+    ],
+    "23": [
+      "Passed",
+      "Blocked"
+    ],
+    "24": [
+      "Passed",
+      "Blocked"
+    ],
+    "25": [
+      "Passed",
+      "Blocked"
+    ],
+    "26": [
+      "Passed",
+      "Blocked"
+    ],
+    "27": [
+      "Passed",
+      "Blocked"
+    ],
+    "28": [
+      "Passed",
+      "Blocked"
+    ],
+    "29": [
+      "Passed",
+      "Blocked"
+    ],
+    "30": [
+      "Passed",
+      "Blocked"
+    ],
+    "31": [
+      "Passed",
+      "Blocked"
+    ],
+    "32": [
+      "Passed",
+      "Blocked"
+    ],
+    "33": [
+      "Passed",
+      "Blocked"
+    ],
+    "34": [
+      "Passed",
+      "Blocked"
+    ],
+    "35": [
+      "Passed",
+      "Blocked"
+    ],
+    "36": [
+      "Passed",
+      "Blocked"
+    ],
+    "37": [
+      "Passed",
+      "Blocked"
+    ],
+    "38": [
+      "Passed",
+      "Blocked"
+    ],
+    "39": [
+      "Passed",
+      "Blocked"
+    ],
+    "40": [
+      "Passed",
+      "Blocked"
+    ],
+    "41": [
+      "Passed",
+      "Blocked"
+    ],
+    "42": [
+      "Passed",
+      "Blocked"
+    ],
+    "43": [
+      "Passed",
+      "Blocked"
+    ],
+    "44": [
+      "Passed",
+      "Blocked"
+    ],
+    "45": [
+      "Passed",
+      "Blocked"
+    ],
+    "46": [
+      "Passed",
+      "Blocked"
+    ],
+    "47": [
+      "Passed",
+      "Blocked"
+    ],
+    "48": [
+      "Passed",
+      "Blocked"
+    ],
+    "49": [
+      "Passed",
+      "Blocked"
+    ],
+    "50": [
+      "Passed",
+      "Blocked"
+    ],
+    "51": [
+      "Passed",
+      "Blocked"
+    ],
+    "52": [
+      "Passed",
+      "Blocked"
+    ],
+    "53": [
+      "Passed",
+      "Blocked"
+    ],
+    "54": [
+      "Passed",
+      "Blocked"
+    ],
+    "55": [
+      "Passed",
+      "Blocked"
+    ],
+    "56": [
+      "Passed",
+      "Blocked"
+    ],
+    "57": [
+      "Passed",
+      "Blocked"
+    ],
+    "58": [
+      "Passed",
+      "Blocked"
+    ],
+    "59": [
+      "Passed",
+      "Blocked"
+    ],
+    "60": [
+      "Passed",
+      "Blocked"
+    ],
+    "61": [
+      "Passed",
+      "Blocked"
+    ],
+    "62": [
+      "Passed",
+      "Blocked"
+    ],
+    "63": [
+      "Passed",
+      "Blocked"
+    ],
+    "64": [
+      "Passed",
+      "Blocked"
+    ],
+    "65": [
+      "Passed",
+      "Blocked"
+    ],
+    "66": [
+      "Passed",
+      "Blocked"
+    ],
+    "67": [
+      "Passed",
+      "Blocked"
+    ],
+    "68": [
+      "Passed",
+      "Blocked"
+    ],
+    "69": [
+      "Passed",
+      "Blocked"
+    ],
+    "70": [
+      "Passed",
+      "Blocked"
+    ],
+    "71": [
+      "Passed",
+      "Blocked"
+    ],
+    "72": [
+      "Passed",
+      "Blocked"
+    ],
+    "73": [
+      "Passed",
+      "Blocked"
+    ],
+    "74": [
+      "Passed",
+      "Blocked"
+    ],
+    "75": [
+      "Passed",
+      "Blocked"
+    ],
+    "76": [
+      "Passed",
+      "Blocked"
+    ],
+    "77": [
+      "Passed",
+      "Blocked"
+    ],
+    "78": [
+      "Passed",
+      "Blocked"
+    ],
+    "79": [
+      "Passed",
+      "Blocked"
+    ],
+    "80": [
+      "Passed",
+      "Blocked"
+    ],
+    "81": [
+      "Passed",
+      "Blocked"
+    ],
+    "82": [
+      "Passed",
+      "Blocked"
+    ],
+    "83": [
+      "Passed",
+      "Blocked"
+    ],
+    "84": [
+      "Passed",
+      "Blocked"
+    ],
+    "85": [
+      "Passed",
+      "Blocked"
+    ],
+    "86": [
+      "Passed",
+      "Blocked"
+    ],
+    "87": [
+      "Passed",
+      "Blocked"
+    ],
+    "88": [
+      "Passed",
+      "Blocked"
+    ],
+    "89": [
+      "Passed",
+      "Blocked"
+    ],
+    "90": [
+      "Passed",
+      "Blocked"
+    ],
+    "91": [
+      "Passed",
+      "Blocked"
+    ],
+    "92": [
+      "Passed",
+      "Blocked"
+    ],
+    "93": [
+      "Passed",
+      "Blocked"
+    ],
+    "94": [
+      "Passed",
+      "Blocked"
+    ],
+    "95": [
+      "Passed",
+      "Blocked"
+    ],
+    "96": [
+      "Passed",
+      "Blocked"
+    ],
+    "97": [
+      "Passed",
+      "Blocked"
+    ],
+    "98": [
+      "Passed",
+      "Blocked"
+    ],
+    "99": [
+      "Passed",
+      "Blocked"
+    ],
+    "100": [
+      "Passed",
+      "Blocked"
+    ],
+    "101": [
+      "Passed",
+      "Blocked"
+    ],
+    "102": [
+      "Passed",
+      "Blocked"
+    ],
+    "103": [
+      "Passed",
+      "Blocked"
+    ],
+    "104": [
+      "Passed",
+      "Blocked"
+    ],
+    "105": [
+      "Passed",
+      "Blocked"
+    ],
+    "106": [
+      "Passed",
+      "Blocked"
+    ],
+    "107": [
+      "Passed",
+      "Blocked"
+    ],
+    "108": [
+      "Passed",
+      "Blocked"
+    ],
+    "109": [
+      "Passed",
+      "Blocked"
+    ],
+    "110": [
+      "Passed",
+      "Blocked"
+    ],
+    "111": [
+      "Passed",
+      "Blocked"
+    ],
+    "112": [
+      "Passed",
+      "Blocked"
+    ],
+    "113": [
+      "Passed",
+      "Blocked"
+    ],
+    "114": [
+      "Passed",
+      "Blocked"
+    ],
+    "115": [
+      "Passed",
+      "Blocked"
+    ],
+    "116": [
+      "Passed",
+      "Blocked"
+    ],
+    "117": [
+      "Passed",
+      "Blocked"
+    ],
+    "118": [
+      "Passed",
+      "Blocked"
+    ],
+    "119": [
+      "Passed",
+      "Blocked"
+    ],
+    "120": [
+      "Passed",
+      "Blocked"
+    ],
+    "121": [
+      "Passed",
+      "Blocked"
+    ],
+    "122": [
+      "Passed",
+      "Blocked"
+    ],
+    "123": [
+      "Passed",
+      "Blocked"
+    ],
+    "124": [
+      "Passed",
+      "Blocked"
+    ],
+    "125": [
+      "Passed",
+      "Blocked"
+    ],
+    "126": [
+      "Passed",
+      "Blocked"
+    ],
+    "127": [
+      "Passed",
+      "Blocked"
+    ],
+    "128": [
+      "Passed",
+      "Blocked"
+    ],
+    "129": [
+      "Passed",
+      "Blocked"
+    ],
+    "130": [
+      "Passed",
+      "Blocked"
+    ],
+    "131": [
+      "Passed",
+      "Blocked"
+    ],
+    "132": [
+      "Passed",
+      "Blocked"
+    ]
+  }
+}

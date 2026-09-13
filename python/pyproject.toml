@@ -1,0 +1,21 @@
+[project]
+name = "food-delivery-qa"
+version = "1.0.0"
+description = "Food-delivery domain: a self-written mini-eats service (customer, merchant, driver, admin) plus TheMealDB's live API; BE over the store's DB and REST, FE over the four app surfaces"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+bdd_features_base_dir = "../features"
+addopts = "-q -p no:cacheprovider"
+filterwarnings = ["ignore:Unknown pytest.mark.case:pytest.PytestUnknownMarkWarning"]
+markers = [
+  "case_id(id): the immutable catalogue ID this scenario reports against",
+  "be: backend branch -- no browser",
+  "fe: frontend branch -- Playwright",
+  "db: reads the mini-eats SQLite file directly",
+  "api: calls an HTTP API",
+  "minieats: target is the self-written mini-eats service",
+  "mealdb: target is the live themealdb.com API",
+]
+testpaths = ["be", "fe"]

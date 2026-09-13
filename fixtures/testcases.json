@@ -1,0 +1,1644 @@
+{
+  "meta": {
+    "domain": "food-delivery",
+    "targets": {
+      "minieats-db": "mini-eats SQLite, written by the service (be/db, both stacks open the same file)",
+      "minieats-api": "mini-eats REST over that SQLite -- the customer, merchant, driver and admin apps (be/api)",
+      "minieats-fe": "mini-eats HTML pages for the four app surfaces (Playwright)",
+      "mealdb-api": "themealdb.com public API (no key)"
+    },
+    "idPolicy": "immutable",
+    "nextId": 133,
+    "note": "Generated from features/*.feature by testcases/build.js. Every scenario carries @case:N; an N missing here is an error."
+  },
+  "cases": {
+    "1": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "The store has the documented tables",
+      "priority": "High",
+      "steps": [
+        "Then the store has tables restaurants, menu_items, customers, drivers, carts, cart_items, orders, order_items, order_events, ledger"
+      ]
+    },
+    "2": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "A menu item name is unique within its restaurant",
+      "priority": "High",
+      "steps": [
+        "Given a throwaway database with the schema applied",
+        "Then inserting two menu items with the same name on one restaurant fails on the second"
+      ]
+    },
+    "3": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "Order lines reference a real order and a real menu item",
+      "priority": "High",
+      "steps": [
+        "Given a throwaway database with the schema applied",
+        "Then inserting an order_items row for a missing order fails a FOREIGN KEY",
+        "And inserting an order_items row for a missing menu item fails a FOREIGN KEY"
+      ]
+    },
+    "4": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "Amounts and quantities are bounded by CHECK",
+      "priority": "High",
+      "steps": [
+        "Given a throwaway database with the schema applied",
+        "Then inserting a menu item with negative price fails a CHECK",
+        "And inserting a menu item with negative stock fails a CHECK",
+        "And inserting a cart item with zero quantity fails a CHECK"
+      ]
+    },
+    "5": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "An order status is one of the lifecycle states",
+      "priority": "High",
+      "steps": [
+        "Given a throwaway database with the schema applied",
+        "Then inserting an order with status \"in_transit\" fails a CHECK"
+      ]
+    },
+    "6": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "An order event names a known actor",
+      "priority": "High",
+      "steps": [
+        "Given a throwaway database with the schema applied",
+        "Then inserting an order event with actor \"robot\" fails a CHECK"
+      ]
+    },
+    "7": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "A ledger entry is a real, non-zero amount with a known reason and party",
+      "priority": "Medium",
+      "steps": [
+        "Given a throwaway database with the schema applied",
+        "Then inserting a ledger row with zero delta fails a CHECK",
+        "And inserting a ledger row with reason \"tip\" fails a CHECK",
+        "And inserting a ledger row with party type \"government\" fails a CHECK"
+      ]
+    },
+    "8": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "A driver status is one of the known states",
+      "priority": "Medium",
+      "steps": [
+        "Given a throwaway database with the schema applied",
+        "Then inserting a driver with status \"sleeping\" fails a CHECK"
+      ]
+    },
+    "9": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "The commission rate is a fraction between nothing and everything",
+      "priority": "Medium",
+      "steps": [
+        "Given a throwaway database with the schema applied",
+        "Then inserting a restaurant with commission over 100 percent fails a CHECK"
+      ]
+    },
+    "10": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "Seeding twice leaves the same rows",
+      "priority": "Medium",
+      "steps": [
+        "Given a throwaway database with the schema and seed applied",
+        "Then applying the seed again changes no row counts"
+      ]
+    },
+    "11": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "A checkout creates an order whose total is its subtotal plus the delivery fee",
+      "priority": "High",
+      "steps": [
+        "Given a customer with a cart at restaurant 2",
+        "And the cart holds 2 of item 5 and 1 of item 7",
+        "When the customer checks out",
+        "Then the order total equals its subtotal plus the delivery fee"
+      ]
+    },
+    "12": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "Order lines capture the price at order time",
+      "priority": "High",
+      "steps": [
+        "Given a customer with a cart at restaurant 1",
+        "And the cart holds 1 of item 2",
+        "When the customer checks out",
+        "Then each order line price equals the menu item's price at order time"
+      ]
+    },
+    "13": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "Checkout decrements stock by the ordered quantity",
+      "priority": "High",
+      "steps": [
+        "Given a customer with a cart at restaurant 1",
+        "And the stock of item 1 is noted",
+        "And the cart holds 3 of item 1",
+        "When the customer checks out",
+        "Then the stock of item 1 fell by 3"
+      ]
+    },
+    "14": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "An oversell is refused and leaves the store untouched",
+      "priority": "High",
+      "steps": [
+        "Given a customer with a cart at restaurant 2",
+        "And the stock of item 6 is noted",
+        "And the order count is noted",
+        "When the customer tries to order 999 of item 6",
+        "Then the checkout is refused with code \"insufficient_stock\"",
+        "And the stock of item 6 is unchanged",
+        "And no new order was created"
+      ]
+    },
+    "15": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "An empty cart cannot be checked out",
+      "priority": "Medium",
+      "steps": [
+        "Given a customer with a cart at restaurant 1",
+        "And the order count is noted",
+        "When the customer checks out",
+        "Then the checkout is refused with code \"empty_cart\"",
+        "And no new order was created"
+      ]
+    },
+    "16": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "A checked-out cart is marked ordered",
+      "priority": "Medium",
+      "steps": [
+        "Given a customer with a cart at restaurant 3",
+        "And the cart holds 1 of item 8",
+        "When the customer checks out",
+        "Then the cart row status is \"ordered\""
+      ]
+    },
+    "17": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "The order belongs to the customer who placed it",
+      "priority": "Medium",
+      "steps": [
+        "Given a customer with a cart at restaurant 1",
+        "And the cart holds 1 of item 1",
+        "When the customer checks out",
+        "Then the order's customer is the buyer"
+      ]
+    },
+    "18": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "One order line per distinct cart line",
+      "priority": "Medium",
+      "steps": [
+        "Given a customer with a cart at restaurant 3",
+        "And the cart holds 1 of item 8 and 2 of item 9 and 1 of item 10",
+        "When the customer checks out",
+        "Then the order has 3 order lines"
+      ]
+    },
+    "19": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "Placing an order writes the opening event",
+      "priority": "High",
+      "steps": [
+        "Given a customer with a cart at restaurant 1",
+        "And the cart holds 1 of item 1",
+        "When the customer checks out",
+        "Then the order's first event is placed by the customer"
+      ]
+    },
+    "20": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "Accepting an order records the transition and moves the status",
+      "priority": "High",
+      "steps": [
+        "Given a placed order of 1 of item 1 at restaurant 1",
+        "When the merchant accepts the order",
+        "Then the order status row is \"accepted\"",
+        "And an event records placed to accepted by the merchant"
+      ]
+    },
+    "21": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "Rejecting a placed order restocks it and records the transition",
+      "priority": "High",
+      "steps": [
+        "Given the stock of item 1 is noted",
+        "And a placed order of 2 of item 1 at restaurant 1",
+        "When the merchant rejects the order",
+        "Then the order status row is \"rejected\"",
+        "And the stock of item 1 is unchanged from the note",
+        "And an event records placed to rejected by the merchant"
+      ]
+    },
+    "22": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "Cancelling a placed order restocks it and records the transition",
+      "priority": "High",
+      "steps": [
+        "Given the stock of item 2 is noted",
+        "And a placed order of 1 of item 2 at restaurant 1",
+        "When the customer cancels the order",
+        "Then the order status row is \"cancelled\"",
+        "And the stock of item 2 is unchanged from the note",
+        "And an event records placed to cancelled by the customer"
+      ]
+    },
+    "23": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "A full lifecycle writes an event for every transition",
+      "priority": "High",
+      "steps": [
+        "Given a delivered order of 1 of item 1 at restaurant 1",
+        "Then the order's events run placed, accepted, preparing, ready, assigned, picked_up, delivered",
+        "And each event names the actor responsible for that transition"
+      ]
+    },
+    "24": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "On delivery the restaurant is paid its subtotal less commission",
+      "priority": "High",
+      "steps": [
+        "Given a delivered order of 2 of item 5 at restaurant 2",
+        "Then the restaurant's payout equals the subtotal minus commission"
+      ]
+    },
+    "25": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "On delivery the driver is paid the delivery fee and the platform takes the commission",
+      "priority": "High",
+      "steps": [
+        "Given a delivered order of 1 of item 8 at restaurant 3",
+        "Then the driver's ledger credit equals the delivery fee",
+        "And the platform's ledger credit equals the commission"
+      ]
+    },
+    "26": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "The delivery ledger sums to the order total",
+      "priority": "High",
+      "steps": [
+        "Given a delivered order of 2 of item 6 at restaurant 2",
+        "Then the order's ledger credits sum to the order total"
+      ]
+    },
+    "27": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "An undelivered order has posted nothing to the ledger",
+      "priority": "Medium",
+      "steps": [
+        "Given a placed order of 1 of item 1 at restaurant 1",
+        "Then the order has no ledger rows"
+      ]
+    },
+    "28": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "A repeated checkout with the same idempotency key makes one order",
+      "priority": "High",
+      "steps": [
+        "Given a customer with a cart at restaurant 1",
+        "And the cart holds 1 of item 1",
+        "And the order count is noted",
+        "When the customer checks out with idempotency key \"eats-abc-1\"",
+        "And the customer checks out again with idempotency key \"eats-abc-1\"",
+        "Then exactly one new order was created",
+        "And both checkouts returned the same order id"
+      ]
+    },
+    "29": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "No order line references a missing menu item",
+      "priority": "Medium",
+      "steps": [
+        "Given a customer with a cart at restaurant 1",
+        "And the cart holds 1 of item 1",
+        "When the customer checks out",
+        "Then no order_items row references a menu item missing from menu_items"
+      ]
+    },
+    "30": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "No order references a missing customer or restaurant",
+      "priority": "Medium",
+      "steps": [
+        "Then no orders row references a customer missing from customers",
+        "And no orders row references a restaurant missing from restaurants"
+      ]
+    },
+    "31": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "Checkout of <label> decrements its stock and captures its price",
+      "priority": "Medium",
+      "steps": [
+        "Given a customer with a cart at restaurant <rid>",
+        "And the stock of item <iid> is noted",
+        "And the cart holds 2 of item <iid>",
+        "When the customer checks out",
+        "Then the stock of item <iid> fell by 2",
+        "And each order line price equals the menu item's price at order time"
+      ]
+    },
+    "32": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "Checkout of <label> decrements its stock and captures its price",
+      "priority": "Medium",
+      "steps": [
+        "Given a customer with a cart at restaurant <rid>",
+        "And the stock of item <iid> is noted",
+        "And the cart holds 2 of item <iid>",
+        "When the customer checks out",
+        "Then the stock of item <iid> fell by 2",
+        "And each order line price equals the menu item's price at order time"
+      ]
+    },
+    "33": {
+      "module": "01-minieats-db",
+      "layer": "BE/DB",
+      "tier": "minieats-db",
+      "title": "Checkout of <label> decrements its stock and captures its price",
+      "priority": "Medium",
+      "steps": [
+        "Given a customer with a cart at restaurant <rid>",
+        "And the stock of item <iid> is noted",
+        "And the cart holds 2 of item <iid>",
+        "When the customer checks out",
+        "Then the stock of item <iid> fell by 2",
+        "And each order line price equals the menu item's price at order time"
+      ]
+    },
+    "34": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "/restaurants lists the active restaurants only",
+      "priority": "High",
+      "steps": [
+        "When GET /restaurants",
+        "Then the response status is 200",
+        "And every restaurant in the response is active",
+        "And no inactive restaurant appears"
+      ]
+    },
+    "35": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "/restaurants/:id/menu matches the rows, priced from them",
+      "priority": "High",
+      "steps": [
+        "When GET /restaurants/1/menu",
+        "Then the response status is 200",
+        "And every menu item in the response matches its row"
+      ]
+    },
+    "36": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "The menu marks an out-of-stock item and an unavailable item as unavailable",
+      "priority": "Medium",
+      "steps": [
+        "When GET /restaurants/1/menu",
+        "Then menu item 3 is reported unavailable",
+        "And menu item 4 is reported unavailable"
+      ]
+    },
+    "37": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "/restaurants/:id hides an inactive restaurant and 404s the unknown",
+      "priority": "Medium",
+      "steps": [
+        "When GET /restaurants/1",
+        "Then the response status is 200",
+        "When GET /restaurants/4",
+        "Then the response status is 404",
+        "When GET /restaurants/999",
+        "Then the response status is 404"
+      ]
+    },
+    "38": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "Opening a cart requires a customer token",
+      "priority": "High",
+      "steps": [
+        "When a cart is opened at restaurant 1 with no token",
+        "Then the response status is 401",
+        "And the response is an error with code \"unauthenticated\""
+      ]
+    },
+    "39": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "A cart cannot be opened at a closed restaurant",
+      "priority": "High",
+      "steps": [
+        "Given a registered customer",
+        "When the customer opens a cart at restaurant 4",
+        "Then the response status is 409",
+        "And the response is an error with code \"restaurant_closed\""
+      ]
+    },
+    "40": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "Adding an item reflects the row and the line total",
+      "priority": "High",
+      "steps": [
+        "Given a customer with a cart at restaurant 2",
+        "When 2 of item 5 are added to the cart",
+        "Then the cart holds 2 of item 5 priced from the row",
+        "And the cart subtotal equals the sum of its line totals"
+      ]
+    },
+    "41": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "Adding the same item twice merges into one line",
+      "priority": "Medium",
+      "steps": [
+        "Given a customer with a cart at restaurant 1",
+        "When 1 of item 1 are added to the cart",
+        "And 2 of item 1 are added to the cart",
+        "Then the cart has 1 lines",
+        "And the cart holds 3 of item 1 priced from the row"
+      ]
+    },
+    "42": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "A quantity beyond stock is refused",
+      "priority": "High",
+      "steps": [
+        "Given a customer with a cart at restaurant 2",
+        "When 999 of item 6 are added to the cart",
+        "Then the response status is 409",
+        "And the response is an error with code \"insufficient_stock\""
+      ]
+    },
+    "43": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "An item from another restaurant cannot be added",
+      "priority": "Medium",
+      "steps": [
+        "Given a customer with a cart at restaurant 1",
+        "When 1 of item 5 are added to the cart",
+        "Then the response status is 404"
+      ]
+    },
+    "44": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "An out-of-stock item cannot be added",
+      "priority": "Medium",
+      "steps": [
+        "Given a customer with a cart at restaurant 1",
+        "When 1 of item 3 are added to the cart",
+        "Then the response status is 409",
+        "And the response is an error with code \"insufficient_stock\""
+      ]
+    },
+    "45": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "An unavailable item cannot be added",
+      "priority": "Medium",
+      "steps": [
+        "Given a customer with a cart at restaurant 1",
+        "When 1 of item 4 are added to the cart",
+        "Then the response status is 409",
+        "And the response is an error with code \"unavailable\""
+      ]
+    },
+    "46": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "A non-positive quantity is rejected",
+      "priority": "Low",
+      "steps": [
+        "Given a customer with a cart at restaurant 1",
+        "When 0 of item 1 are added to the cart",
+        "Then the response status is 400"
+      ]
+    },
+    "47": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "An unknown cart is 404",
+      "priority": "Low",
+      "steps": [
+        "When GET /carts/nope",
+        "Then the response status is 404"
+      ]
+    },
+    "48": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "Checkout requires a customer token",
+      "priority": "High",
+      "steps": [
+        "Given a customer with a cart at restaurant 1",
+        "And 1 of item 1 are added to the cart",
+        "When checkout is posted with no token",
+        "Then the response status is 401",
+        "And the response is an error with code \"unauthenticated\""
+      ]
+    },
+    "49": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "A checkout returns an order equal to the stored order",
+      "priority": "High",
+      "steps": [
+        "Given a customer with a cart at restaurant 1",
+        "And 1 of item 1 are added to the cart",
+        "And 1 of item 2 are added to the cart",
+        "When the customer checks out",
+        "Then the response status is 201",
+        "And the order in the response equals the stored order"
+      ]
+    },
+    "50": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "The order total in the response is its subtotal plus the delivery fee",
+      "priority": "High",
+      "steps": [
+        "Given a customer with a cart at restaurant 2",
+        "And 2 of item 5 are added to the cart",
+        "When the customer checks out",
+        "Then the order total in the response equals its subtotal plus the delivery fee"
+      ]
+    },
+    "51": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "An empty cart cannot be checked out",
+      "priority": "Medium",
+      "steps": [
+        "Given a customer with a cart at restaurant 1",
+        "When the customer checks out",
+        "Then the response status is 400",
+        "And the response is an error with code \"empty_cart\""
+      ]
+    },
+    "52": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "A tracked order carries its lifecycle events",
+      "priority": "High",
+      "steps": [
+        "Given a placed order of 1 of item 1 at restaurant 1",
+        "When the order is fetched",
+        "Then the response status is 200",
+        "And the tracked order reports status \"placed\"",
+        "And the tracked order has an event to \"placed\""
+      ]
+    },
+    "53": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "A retried checkout with the same idempotency key returns the same order",
+      "priority": "Medium",
+      "steps": [
+        "Given a customer with a cart at restaurant 1",
+        "And 1 of item 1 are added to the cart",
+        "When the customer checks out with idempotency key \"eats-api-1\"",
+        "And the customer checks out again with idempotency key \"eats-api-1\"",
+        "Then both checkouts returned the same order id",
+        "And the second checkout is flagged an idempotent replay"
+      ]
+    },
+    "54": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "An unknown order is 404",
+      "priority": "Low",
+      "steps": [
+        "When GET /orders/999999",
+        "Then the response status is 404"
+      ]
+    },
+    "55": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "A merchant advances a placed order through to ready",
+      "priority": "High",
+      "steps": [
+        "Given a placed order of 1 of item 1 at restaurant 1",
+        "When the merchant accepts the order",
+        "Then the response status is 200",
+        "And the order in the response reports status \"accepted\"",
+        "When the merchant prepares the order",
+        "Then the order in the response reports status \"preparing\"",
+        "When the merchant marks the order ready",
+        "Then the order in the response reports status \"ready\""
+      ]
+    },
+    "56": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "A merchant cannot accept an order that is not placed",
+      "priority": "High",
+      "steps": [
+        "Given a placed order of 1 of item 1 at restaurant 1",
+        "And the merchant has accepted the order",
+        "When the merchant accepts the order",
+        "Then the response status is 409",
+        "And the response is an error with code \"bad_state\""
+      ]
+    },
+    "57": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "A merchant cannot prepare an order that was never accepted",
+      "priority": "High",
+      "steps": [
+        "Given a placed order of 1 of item 1 at restaurant 1",
+        "When the merchant prepares the order",
+        "Then the response status is 409",
+        "And the response is an error with code \"bad_state\""
+      ]
+    },
+    "58": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "A merchant rejects a placed order",
+      "priority": "High",
+      "steps": [
+        "Given a placed order of 1 of item 1 at restaurant 1",
+        "When the merchant rejects the order",
+        "Then the response status is 200",
+        "And the order in the response reports status \"rejected\""
+      ]
+    },
+    "59": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "A customer can cancel a placed order but not one already accepted",
+      "priority": "High",
+      "steps": [
+        "Given a placed order of 1 of item 1 at restaurant 1",
+        "When the customer cancels the order",
+        "Then the response status is 200",
+        "And the order in the response reports status \"cancelled\""
+      ]
+    },
+    "60": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "A customer cannot cancel once the merchant has accepted",
+      "priority": "High",
+      "steps": [
+        "Given a placed order of 1 of item 1 at restaurant 1",
+        "And the merchant has accepted the order",
+        "When the customer cancels the order",
+        "Then the response status is 409",
+        "And the response is an error with code \"bad_state\""
+      ]
+    },
+    "61": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "A customer cannot cancel another customer's order",
+      "priority": "High",
+      "steps": [
+        "Given a placed order of 1 of item 1 at restaurant 1",
+        "When another customer tries to cancel the order",
+        "Then the response status is 403",
+        "And the response is an error with code \"forbidden\""
+      ]
+    },
+    "62": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "A ready order is offered to drivers; an unready one is not",
+      "priority": "High",
+      "steps": [
+        "Given a placed order of 1 of item 1 at restaurant 1",
+        "When the driver reads the offers",
+        "Then the placed order is not among the offers",
+        "Given the order has been made ready",
+        "When the driver reads the offers",
+        "Then the ready order is among the offers"
+      ]
+    },
+    "63": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "Reading the offers requires a driver token",
+      "priority": "High",
+      "steps": [
+        "When the offers are read with no token",
+        "Then the response status is 401"
+      ]
+    },
+    "64": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "A driver assigns, picks up and delivers a ready order",
+      "priority": "High",
+      "steps": [
+        "Given a ready order of 1 of item 1 at restaurant 1",
+        "When the driver assigns the order",
+        "Then the response status is 200",
+        "And the order in the response reports status \"ready\"",
+        "And the order in the response is assigned to the driver",
+        "When the driver picks up the order",
+        "Then the order in the response reports status \"picked_up\"",
+        "When the driver delivers the order",
+        "Then the order in the response reports status \"delivered\""
+      ]
+    },
+    "65": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "An order cannot be assigned to a second driver",
+      "priority": "High",
+      "steps": [
+        "Given a ready order of 1 of item 1 at restaurant 1",
+        "And a driver has assigned the order",
+        "When another driver assigns the order",
+        "Then the response status is 409",
+        "And the response is an error with code \"already_assigned\""
+      ]
+    },
+    "66": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "Only the assigned driver may pick up the order",
+      "priority": "High",
+      "steps": [
+        "Given a ready order of 1 of item 1 at restaurant 1",
+        "And a driver has assigned the order",
+        "When another driver picks up the order",
+        "Then the response status is 403",
+        "And the response is an error with code \"forbidden\""
+      ]
+    },
+    "67": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "A ready order cannot be delivered before it is picked up",
+      "priority": "High",
+      "steps": [
+        "Given a ready order of 1 of item 1 at restaurant 1",
+        "And a driver has assigned the order",
+        "When the assigned driver delivers the order",
+        "Then the response status is 409",
+        "And the response is an error with code \"bad_state\""
+      ]
+    },
+    "68": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "An order cannot be assigned before it is ready",
+      "priority": "Medium",
+      "steps": [
+        "Given a placed order of 1 of item 1 at restaurant 1",
+        "When the driver assigns the order",
+        "Then the response status is 409"
+      ]
+    },
+    "69": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "A merchant sees its own restaurant's orders",
+      "priority": "Medium",
+      "steps": [
+        "Given a placed order of 1 of item 1 at restaurant 1",
+        "When GET /restaurants/1/orders",
+        "Then the response status is 200",
+        "And the placed order appears on the restaurant's board"
+      ]
+    },
+    "70": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "A merchant can filter its board by status",
+      "priority": "Medium",
+      "steps": [
+        "Given a placed order of 1 of item 1 at restaurant 1",
+        "When GET /restaurants/1/orders?status=placed",
+        "Then every order on the board reports status \"placed\""
+      ]
+    },
+    "71": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "The admin overview requires the admin token",
+      "priority": "High",
+      "steps": [
+        "When GET /admin/overview with no token",
+        "Then the response status is 401"
+      ]
+    },
+    "72": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "The admin overview counts a delivered order and its revenue",
+      "priority": "High",
+      "steps": [
+        "Given a delivered order of 2 of item 5 at restaurant 2",
+        "When the admin reads the overview",
+        "Then the response status is 200",
+        "And the overview counts at least one delivered order",
+        "And the overview revenue is at least the order total"
+      ]
+    },
+    "73": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "The admin overview's money balances -- revenue equals payouts plus commission plus fees",
+      "priority": "High",
+      "steps": [
+        "Given a delivered order of 1 of item 8 at restaurant 3",
+        "When the admin reads the overview",
+        "Then the overview revenue equals payouts plus commission plus delivery fees"
+      ]
+    },
+    "74": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "The admin can list orders and filter them by status",
+      "priority": "Medium",
+      "steps": [
+        "Given a delivered order of 1 of item 1 at restaurant 1",
+        "When the admin lists orders with status \"delivered\"",
+        "Then every listed order reports status \"delivered\""
+      ]
+    },
+    "75": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "The admin deactivates a restaurant and it disappears from the customer list",
+      "priority": "High",
+      "steps": [
+        "Given the admin deactivates restaurant 3",
+        "When GET /restaurants",
+        "Then restaurant 3 is not in the response",
+        "Given the admin reactivates restaurant 3",
+        "When GET /restaurants",
+        "Then restaurant 3 is in the response"
+      ]
+    },
+    "76": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "Deactivating an unknown restaurant is 404",
+      "priority": "Low",
+      "steps": [
+        "When the admin deactivates restaurant 999",
+        "Then the response status is 404"
+      ]
+    },
+    "77": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "A consistent error shape and a 404 for unknown routes",
+      "priority": "Medium",
+      "steps": [
+        "When GET /nowhere",
+        "Then the response status is 404",
+        "And the response is an error with code \"not_found\""
+      ]
+    },
+    "78": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "The health endpoint reports the seeded restaurant count",
+      "priority": "Low",
+      "steps": [
+        "When GET /health",
+        "Then the response status is 200",
+        "And the response field \"ok\" is true"
+      ]
+    },
+    "79": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "An order at restaurant <rid> can be driven to delivered",
+      "priority": "Medium",
+      "steps": [
+        "Given a ready order of 1 of item <iid> at restaurant <rid>",
+        "When the driver assigns the order",
+        "And the driver picks up the order",
+        "And the driver delivers the order",
+        "Then the order in the response reports status \"delivered\""
+      ]
+    },
+    "80": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "An order at restaurant <rid> can be driven to delivered",
+      "priority": "Medium",
+      "steps": [
+        "Given a ready order of 1 of item <iid> at restaurant <rid>",
+        "When the driver assigns the order",
+        "And the driver picks up the order",
+        "And the driver delivers the order",
+        "Then the order in the response reports status \"delivered\""
+      ]
+    },
+    "81": {
+      "module": "02-minieats-api",
+      "layer": "BE/API",
+      "tier": "minieats-api",
+      "title": "An order at restaurant <rid> can be driven to delivered",
+      "priority": "Medium",
+      "steps": [
+        "Given a ready order of 1 of item <iid> at restaurant <rid>",
+        "When the driver assigns the order",
+        "And the driver picks up the order",
+        "And the driver delivers the order",
+        "Then the order in the response reports status \"delivered\""
+      ]
+    },
+    "82": {
+      "module": "03-mealdb-api",
+      "layer": "BE/API",
+      "tier": "mealdb-api",
+      "title": "The category list answers and is non-empty",
+      "priority": "High",
+      "steps": [
+        "When the meal categories are fetched",
+        "Then there are at least 5 categories"
+      ]
+    },
+    "83": {
+      "module": "03-mealdb-api",
+      "layer": "BE/API",
+      "tier": "mealdb-api",
+      "title": "Every category has an id and a name",
+      "priority": "High",
+      "steps": [
+        "When the meal categories are fetched",
+        "Then every category has an id and a name"
+      ]
+    },
+    "84": {
+      "module": "03-mealdb-api",
+      "layer": "BE/API",
+      "tier": "mealdb-api",
+      "title": "Every category id is unique",
+      "priority": "High",
+      "steps": [
+        "When the meal categories are fetched",
+        "Then no category id appears more than once"
+      ]
+    },
+    "85": {
+      "module": "03-mealdb-api",
+      "layer": "BE/API",
+      "tier": "mealdb-api",
+      "title": "Every category name is non-empty when trimmed",
+      "priority": "Medium",
+      "steps": [
+        "When the meal categories are fetched",
+        "Then every category name is non-empty when trimmed"
+      ]
+    },
+    "86": {
+      "module": "03-mealdb-api",
+      "layer": "BE/API",
+      "tier": "mealdb-api",
+      "title": "Every category thumbnail is an http(s) URL",
+      "priority": "Medium",
+      "steps": [
+        "When the meal categories are fetched",
+        "Then every category thumbnail is an http URL"
+      ]
+    },
+    "87": {
+      "module": "03-mealdb-api",
+      "layer": "BE/API",
+      "tier": "mealdb-api",
+      "title": "The categories are stable across two reads",
+      "priority": "Low",
+      "steps": [
+        "When the meal categories are fetched",
+        "And the meal categories are fetched again",
+        "Then both category reads return the same ids"
+      ]
+    },
+    "88": {
+      "module": "03-mealdb-api",
+      "layer": "BE/API",
+      "tier": "mealdb-api",
+      "title": "Filtering by a category returns a non-empty list",
+      "priority": "High",
+      "steps": [
+        "When meals are filtered by category \"Seafood\"",
+        "Then the filtered meals are non-empty"
+      ]
+    },
+    "89": {
+      "module": "03-mealdb-api",
+      "layer": "BE/API",
+      "tier": "mealdb-api",
+      "title": "Every filtered meal has an id, a name and a thumbnail",
+      "priority": "High",
+      "steps": [
+        "When meals are filtered by category \"Seafood\"",
+        "Then every filtered meal has an id, a name and a thumbnail"
+      ]
+    },
+    "90": {
+      "module": "03-mealdb-api",
+      "layer": "BE/API",
+      "tier": "mealdb-api",
+      "title": "No filtered meal id repeats",
+      "priority": "Medium",
+      "steps": [
+        "When meals are filtered by category \"Vegetarian\"",
+        "Then no filtered meal id appears more than once"
+      ]
+    },
+    "91": {
+      "module": "03-mealdb-api",
+      "layer": "BE/API",
+      "tier": "mealdb-api",
+      "title": "Every filtered meal id is a positive integer",
+      "priority": "Medium",
+      "steps": [
+        "When meals are filtered by category \"Dessert\"",
+        "Then every filtered meal id is a positive integer"
+      ]
+    },
+    "92": {
+      "module": "03-mealdb-api",
+      "layer": "BE/API",
+      "tier": "mealdb-api",
+      "title": "Every filtered meal thumbnail is an http(s) URL",
+      "priority": "Low",
+      "steps": [
+        "When meals are filtered by category \"Seafood\"",
+        "Then every filtered meal thumbnail is an http URL"
+      ]
+    },
+    "93": {
+      "module": "03-mealdb-api",
+      "layer": "BE/API",
+      "tier": "mealdb-api",
+      "title": "Filtering by \"<cat>\" returns a non-empty list of real meals",
+      "priority": "Medium",
+      "steps": [
+        "When meals are filtered by category \"<cat>\"",
+        "Then the filtered meals are non-empty",
+        "And every filtered meal has an id, a name and a thumbnail"
+      ]
+    },
+    "94": {
+      "module": "03-mealdb-api",
+      "layer": "BE/API",
+      "tier": "mealdb-api",
+      "title": "Filtering by \"<cat>\" returns a non-empty list of real meals",
+      "priority": "Medium",
+      "steps": [
+        "When meals are filtered by category \"<cat>\"",
+        "Then the filtered meals are non-empty",
+        "And every filtered meal has an id, a name and a thumbnail"
+      ]
+    },
+    "95": {
+      "module": "03-mealdb-api",
+      "layer": "BE/API",
+      "tier": "mealdb-api",
+      "title": "Filtering by \"<cat>\" returns a non-empty list of real meals",
+      "priority": "Medium",
+      "steps": [
+        "When meals are filtered by category \"<cat>\"",
+        "Then the filtered meals are non-empty",
+        "And every filtered meal has an id, a name and a thumbnail"
+      ]
+    },
+    "96": {
+      "module": "03-mealdb-api",
+      "layer": "BE/API",
+      "tier": "mealdb-api",
+      "title": "Looking up a meal by id returns that meal",
+      "priority": "High",
+      "steps": [
+        "When the meal with id 52772 is looked up",
+        "Then the looked-up meal has id 52772"
+      ]
+    },
+    "97": {
+      "module": "03-mealdb-api",
+      "layer": "BE/API",
+      "tier": "mealdb-api",
+      "title": "A looked-up meal carries instructions, a category and an area",
+      "priority": "High",
+      "steps": [
+        "When the meal with id 52772 is looked up",
+        "Then the looked-up meal has instructions, a category and an area"
+      ]
+    },
+    "98": {
+      "module": "03-mealdb-api",
+      "layer": "BE/API",
+      "tier": "mealdb-api",
+      "title": "A looked-up meal lists at least one ingredient",
+      "priority": "Medium",
+      "steps": [
+        "When the meal with id 52772 is looked up",
+        "Then the looked-up meal lists at least one ingredient"
+      ]
+    },
+    "99": {
+      "module": "03-mealdb-api",
+      "layer": "BE/API",
+      "tier": "mealdb-api",
+      "title": "An unknown meal id returns no meal",
+      "priority": "Medium",
+      "steps": [
+        "When the meal with id 99999999 is looked up",
+        "Then no meal is returned"
+      ]
+    },
+    "100": {
+      "module": "03-mealdb-api",
+      "layer": "BE/API",
+      "tier": "mealdb-api",
+      "title": "Searching by name returns the named meal",
+      "priority": "High",
+      "steps": [
+        "When meals are searched by name \"Arrabiata\"",
+        "Then a meal named \"Spicy Arrabiata Penne\" is returned"
+      ]
+    },
+    "101": {
+      "module": "03-mealdb-api",
+      "layer": "BE/API",
+      "tier": "mealdb-api",
+      "title": "A search that matches nothing returns no meals",
+      "priority": "Medium",
+      "steps": [
+        "When meals are searched by name \"zzqqxx-no-such-meal\"",
+        "Then no meal is returned"
+      ]
+    },
+    "102": {
+      "module": "03-mealdb-api",
+      "layer": "BE/API",
+      "tier": "mealdb-api",
+      "title": "Searching by first letter returns meals that start with it",
+      "priority": "Medium",
+      "steps": [
+        "When meals are searched by first letter \"b\"",
+        "Then every returned meal name starts with \"b\""
+      ]
+    },
+    "103": {
+      "module": "03-mealdb-api",
+      "layer": "BE/API",
+      "tier": "mealdb-api",
+      "title": "A common ingredient name search returns at least one meal",
+      "priority": "Low",
+      "steps": [
+        "When meals are searched by name \"chicken\"",
+        "Then at least one meal is returned"
+      ]
+    },
+    "104": {
+      "module": "03-mealdb-api",
+      "layer": "BE/API",
+      "tier": "mealdb-api",
+      "title": "A filtered meal, looked up, reports the same category",
+      "priority": "Medium",
+      "steps": [
+        "When meals are filtered by category \"Seafood\"",
+        "And the first filtered meal is looked up",
+        "Then the looked-up meal reports category \"Seafood\""
+      ]
+    },
+    "105": {
+      "module": "03-mealdb-api",
+      "layer": "BE/API",
+      "tier": "mealdb-api",
+      "title": "The category-name list agrees with the categories endpoint",
+      "priority": "Medium",
+      "steps": [
+        "When the meal category names are listed",
+        "And the meal categories are fetched",
+        "Then every listed category name is a known category"
+      ]
+    },
+    "106": {
+      "module": "03-mealdb-api",
+      "layer": "BE/API",
+      "tier": "mealdb-api",
+      "title": "The area list is non-empty",
+      "priority": "Low",
+      "steps": [
+        "When the meal areas are listed",
+        "Then the area list is non-empty"
+      ]
+    },
+    "107": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "The home page lists exactly the active restaurants",
+      "priority": "High",
+      "steps": [
+        "Then the home page lists the active restaurants, once each"
+      ]
+    },
+    "108": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "The inactive restaurant does not appear on the home page",
+      "priority": "High",
+      "steps": [
+        "Then the home page does not list restaurant 4"
+      ]
+    },
+    "109": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "Each home row links to its restaurant page",
+      "priority": "Medium",
+      "steps": [
+        "Then each home row links to its restaurant page"
+      ]
+    },
+    "110": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "The home page is not empty",
+      "priority": "Low",
+      "steps": [
+        "Then the home page shows at least one restaurant"
+      ]
+    },
+    "111": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "A menu shows each item's price from its row",
+      "priority": "High",
+      "steps": [
+        "When the menu for restaurant 1 is opened",
+        "Then every menu price on screen equals the item row"
+      ]
+    },
+    "112": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "The out-of-stock item is shown unavailable",
+      "priority": "High",
+      "steps": [
+        "When the menu for restaurant 1 is opened",
+        "Then menu item 3 is shown unavailable"
+      ]
+    },
+    "113": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "An in-stock item is shown available",
+      "priority": "Medium",
+      "steps": [
+        "When the menu for restaurant 1 is opened",
+        "Then menu item 1 is shown available"
+      ]
+    },
+    "114": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "Every menu price on screen is a dollar amount",
+      "priority": "Medium",
+      "steps": [
+        "When the menu for restaurant 2 is opened",
+        "Then every menu price on screen is a dollar amount"
+      ]
+    },
+    "115": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "Each menu name matches its item row",
+      "priority": "Medium",
+      "steps": [
+        "When the menu for restaurant 3 is opened",
+        "Then every menu name on screen equals the item row"
+      ]
+    },
+    "116": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "An unknown restaurant page is not found",
+      "priority": "Medium",
+      "steps": [
+        "When the menu for restaurant 999 is opened",
+        "Then the page reports not found"
+      ]
+    },
+    "117": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "The menu for restaurant <rid> is non-empty and priced from the rows",
+      "priority": "Medium",
+      "steps": [
+        "When the menu for restaurant <rid> is opened",
+        "Then every menu price on screen equals the item row"
+      ]
+    },
+    "118": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "The menu for restaurant <rid> is non-empty and priced from the rows",
+      "priority": "Medium",
+      "steps": [
+        "When the menu for restaurant <rid> is opened",
+        "Then every menu price on screen equals the item row"
+      ]
+    },
+    "119": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "The menu for restaurant <rid> is non-empty and priced from the rows",
+      "priority": "Medium",
+      "steps": [
+        "When the menu for restaurant <rid> is opened",
+        "Then every menu price on screen equals the item row"
+      ]
+    },
+    "120": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "An order page shows the total the order was placed at",
+      "priority": "High",
+      "steps": [
+        "Given a placed order of 2 of item 1 at restaurant 1",
+        "When the order page is opened",
+        "Then the order page total equals the stored order total"
+      ]
+    },
+    "121": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "An order page shows the order id and its status",
+      "priority": "Medium",
+      "steps": [
+        "Given a placed order of 1 of item 1 at restaurant 1",
+        "When the order page is opened",
+        "Then the order page shows the order id and status \"placed\""
+      ]
+    },
+    "122": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "The order page total is a dollar amount",
+      "priority": "Medium",
+      "steps": [
+        "Given a placed order of 1 of item 5 at restaurant 2",
+        "When the order page is opened",
+        "Then the order page total is shown as a dollar amount"
+      ]
+    },
+    "123": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "An unknown order page is not found",
+      "priority": "Low",
+      "steps": [
+        "When the order page for 999999 is opened",
+        "Then the page reports not found"
+      ]
+    },
+    "124": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "A delivered order shows a delivered status on its page",
+      "priority": "High",
+      "steps": [
+        "Given a delivered order of 1 of item 8 at restaurant 3",
+        "When the order page is opened",
+        "Then the order page shows status \"delivered\""
+      ]
+    },
+    "125": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "A placed order appears on its restaurant's merchant board",
+      "priority": "High",
+      "steps": [
+        "Given a placed order of 1 of item 1 at restaurant 1",
+        "When the merchant board for restaurant 1 is opened",
+        "Then the placed order appears on the merchant board with status \"placed\""
+      ]
+    },
+    "126": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "Every order on the merchant board shows a dollar total",
+      "priority": "Medium",
+      "steps": [
+        "Given a placed order of 1 of item 2 at restaurant 1",
+        "When the merchant board for restaurant 1 is opened",
+        "Then every order total on the board is a dollar amount"
+      ]
+    },
+    "127": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "A ready order is offered on the driver board with its fee",
+      "priority": "High",
+      "steps": [
+        "Given a ready order of 1 of item 1 at restaurant 1",
+        "When the driver board is opened",
+        "Then the ready order is offered on the driver board"
+      ]
+    },
+    "128": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "The driver board offer count matches the API",
+      "priority": "Medium",
+      "steps": [
+        "Given a ready order of 1 of item 5 at restaurant 2",
+        "When the driver board is opened",
+        "Then the driver board offer count equals the API offer count"
+      ]
+    },
+    "129": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "Every offered delivery fee is a dollar amount",
+      "priority": "Low",
+      "steps": [
+        "Given a ready order of 1 of item 8 at restaurant 3",
+        "When the driver board is opened",
+        "Then every offered fee on the board is a dollar amount"
+      ]
+    },
+    "130": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "The admin page shows the revenue as a dollar amount",
+      "priority": "High",
+      "steps": [
+        "When the admin page is opened",
+        "Then the admin revenue is shown as a dollar amount"
+      ]
+    },
+    "131": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "The admin page counts a delivered order",
+      "priority": "High",
+      "steps": [
+        "Given a delivered order of 1 of item 1 at restaurant 1",
+        "When the admin page is opened",
+        "Then the admin page shows at least one delivered order"
+      ]
+    },
+    "132": {
+      "module": "04-minieats-fe",
+      "layer": "FE/UI",
+      "tier": "minieats-fe",
+      "title": "Every admin status count is a non-negative integer",
+      "priority": "Medium",
+      "steps": [
+        "When the admin page is opened",
+        "Then every admin status count is a non-negative integer"
+      ]
+    }
+  }
+}
