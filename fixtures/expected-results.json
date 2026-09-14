@@ -7,8 +7,8 @@
     "No case is declared Failed: nothing here is currently failing, and manufacturing a failure to have one would be dishonest."
   ],
   "summary": {
-    "total": 132,
-    "Passed": 132,
+    "total": 146,
+    "Passed": 146,
     "Failed": 0,
     "Blocked": 0,
     "note": "nominal: mini-eats running and seeded, TheMealDB reachable, a browser available for the FE tier"
@@ -539,6 +539,62 @@
       "Blocked"
     ],
     "132": [
+      "Passed",
+      "Blocked"
+    ],
+    "133": [
+      "Passed",
+      "Blocked"
+    ],
+    "134": [
+      "Passed",
+      "Blocked"
+    ],
+    "135": [
+      "Passed",
+      "Blocked"
+    ],
+    "136": [
+      "Passed",
+      "Blocked"
+    ],
+    "137": [
+      "Passed",
+      "Blocked"
+    ],
+    "138": [
+      "Passed",
+      "Blocked"
+    ],
+    "139": [
+      "Passed",
+      "Blocked"
+    ],
+    "140": [
+      "Passed",
+      "Blocked"
+    ],
+    "141": [
+      "Passed",
+      "Blocked"
+    ],
+    "142": [
+      "Passed",
+      "Blocked"
+    ],
+    "143": [
+      "Passed",
+      "Blocked"
+    ],
+    "144": [
+      "Passed",
+      "Blocked"
+    ],
+    "145": [
+      "Passed",
+      "Blocked"
+    ],
+    "146": [
       "Passed",
       "Blocked"
     ]

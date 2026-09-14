@@ -62,9 +62,9 @@ When('checkout is posted with no token', { timeout: 30_000 }, async function () 
 When('the order is fetched', { timeout: 30_000 }, async function () { await send(this, 'GET', '/orders/' + this.orderId); });
 
 // merchant / driver / admin actions that are NOT already in the DB steps
-When('the merchant prepares the order', { timeout: 30_000 }, async function () { await send(this, 'POST', `/orders/${this.orderId}/prepare`); });
-When('the merchant marks the order ready', { timeout: 30_000 }, async function () { await send(this, 'POST', `/orders/${this.orderId}/ready`); });
-Given('the merchant has accepted the order', { timeout: 30_000 }, async function () { await send(this, 'POST', `/orders/${this.orderId}/accept`); });
+When('the merchant prepares the order', { timeout: 30_000 }, async function () { await send(this, 'POST', `/orders/${this.orderId}/prepare`, { token: eats.seedMerchant }); });
+When('the merchant marks the order ready', { timeout: 30_000 }, async function () { await send(this, 'POST', `/orders/${this.orderId}/ready`, { token: eats.seedMerchant }); });
+Given('the merchant has accepted the order', { timeout: 30_000 }, async function () { await send(this, 'POST', `/orders/${this.orderId}/accept`, { token: eats.seedMerchant }); });
 Given('the order has been made ready', { timeout: 30_000 }, async function () { await driveToReady(this); });
 Given('a ready order of {int} of item {int} at restaurant {int}', { timeout: 60_000 }, async function (qty, iid, rid) { await placeOrderApi(this, rid, [[qty, iid]]); await driveToReady(this); });
 When('another customer tries to cancel the order', { timeout: 30_000 }, async function () { const other = await eats.newCustomer(); await send(this, 'POST', `/orders/${this.orderId}/cancel`, { token: other.token }); });
@@ -79,6 +79,10 @@ When('the assigned driver delivers the order', { timeout: 30_000 }, async functi
 When('another driver assigns the order', { timeout: 30_000 }, async function () { const other = await eats.newDriver(); await send(this, 'POST', `/orders/${this.orderId}/assign`, { token: other.token }); });
 When('another driver picks up the order', { timeout: 30_000 }, async function () { const other = await eats.newDriver(); await send(this, 'POST', `/orders/${this.orderId}/pickup`, { token: other.token }); });
 
+When('the merchant reads restaurant {int}\'s board', { timeout: 30_000 }, async function (rid) { await send(this, 'GET', `/restaurants/${rid}/orders`, { token: eats.seedMerchant }); });
+When('the merchant reads restaurant {int}\'s board with status {string}', { timeout: 30_000 }, async function (rid, status) { await send(this, 'GET', `/restaurants/${rid}/orders?status=${status}`, { token: eats.seedMerchant }); });
+When('the board of restaurant {int} is read with no token', { timeout: 30_000 }, async function (rid) { await send(this, 'GET', `/restaurants/${rid}/orders`); });
+When('another merchant reads restaurant {int}\'s board', { timeout: 30_000 }, async function (rid) { const other = await eats.newMerchant(); await send(this, 'GET', `/restaurants/${rid}/orders`, { token: other.token }); });
 When(/^GET \/admin\/overview with no token$/, { timeout: 30_000 }, async function () { await send(this, 'GET', '/admin/overview'); });
 When('the admin reads the overview', { timeout: 30_000 }, async function () { await send(this, 'GET', '/admin/overview', { token: eats.adminToken }); });
 When('the admin lists orders with status {string}', { timeout: 30_000 }, async function (status) { await send(this, 'GET', '/admin/orders?status=' + status, { token: eats.adminToken }); });
@@ -101,7 +105,7 @@ async function placeOrderApi(world, rid, lines) {
 async function driveToReady(world) {
   if (world.sourceError) return;
   for (const step of ['accept', 'prepare', 'ready']) {
-    const r = await eats.post(`/orders/${world.orderId}/${step}`);
+    const r = await eats.post(`/orders/${world.orderId}/${step}`, undefined, { token: eats.seedMerchant });
     if (r.status !== 200) throw new Error(step + ': ' + r.text);
   }
 }

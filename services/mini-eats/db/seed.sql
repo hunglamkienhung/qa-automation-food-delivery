@@ -4,11 +4,18 @@
 -- the API, so those rows never collide between runs; two drivers are seeded so
 -- the driver flow has someone to take an order.
 
-INSERT OR IGNORE INTO restaurants (id, name, cuisine, commission_bps, active) VALUES
-  (1, 'Sakura Sushi',  'Japanese', 2000, 1),
-  (2, 'Bella Pizza',   'Italian',  1500, 1),
-  (3, 'Taco Fiesta',   'Mexican',  2500, 1),
-  (4, 'Closed Diner',  'American', 2000, 0);   -- inactive on purpose
+-- One seeded merchant owns every seeded restaurant; its token is what the
+-- merchant flow (accept/prepare/ready, order board) authenticates with. A
+-- second merchant, created through the API, owns nothing -- the security tier
+-- uses it to prove a merchant cannot touch a restaurant it does not own.
+INSERT OR IGNORE INTO merchants (id, name, token, created_at) VALUES
+  (1, 'Sakura Group', 'mch_seed_owner', 1700000000);
+
+INSERT OR IGNORE INTO restaurants (id, name, cuisine, merchant_id, commission_bps, active) VALUES
+  (1, 'Sakura Sushi',  'Japanese', 1, 2000, 1),
+  (2, 'Bella Pizza',   'Italian',  1, 1500, 1),
+  (3, 'Taco Fiesta',   'Mexican',  1, 2500, 1),
+  (4, 'Closed Diner',  'American', 1, 2000, 0);   -- inactive on purpose
 
 -- Stock is generous so a whole run (many scenarios each place fresh orders that
 -- decrement it) never exhausts a hot item -- the suite stays robust as it grows

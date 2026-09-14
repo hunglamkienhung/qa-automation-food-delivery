@@ -17,5 +17,6 @@ markers = [
   "api: calls an HTTP API",
   "minieats: target is the self-written mini-eats service",
   "mealdb: target is the live themealdb.com API",
+  "security: probes authorization boundaries (no/wrong/forged token, cross-actor access)",
 ]
 testpaths = ["be", "fe"]

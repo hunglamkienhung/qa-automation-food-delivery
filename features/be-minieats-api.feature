@@ -286,14 +286,14 @@ Feature: The mini-eats REST layer -- the customer, merchant, driver and admin ap
   @case:69 @priority:medium
   Scenario: A merchant sees its own restaurant's orders
     Given a placed order of 1 of item 1 at restaurant 1
-    When GET /restaurants/1/orders
+    When the merchant reads restaurant 1's board
     Then the response status is 200
     And the placed order appears on the restaurant's board
 
   @case:70 @priority:medium
   Scenario: A merchant can filter its board by status
     Given a placed order of 1 of item 1 at restaurant 1
-    When GET /restaurants/1/orders?status=placed
+    When the merchant reads restaurant 1's board with status "placed"
     Then every order on the board reports status "placed"
 
   # ---------------------------------------------------------------- admin

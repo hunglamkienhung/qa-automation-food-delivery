@@ -27,16 +27,25 @@ Không cần tài khoản, không cần key, không cần dịch vụ trả phí
 | **mini-eats** | đọc + ghi, DB thật | Nền tảng giao hàng nhỏ trong `services/mini-eats`: một file SQLite, chỉ dùng thư viện chuẩn của Node, REST API phục vụ bốn app, và các trang HTML gắn nhãn cho Playwright. |
 | **themealdb.com** | chỉ đọc, live | API công thức món ăn live — những món một nhà hàng có thể nấu — không ai chỉnh cho nó "pass" được. |
 
-**132 case**, mỗi case một ID bất biến, chạy trên **cả hai** stack và đối chiếu
+**146 case**, mỗi case một ID bất biến, chạy trên **cả hai** stack và đối chiếu
 từng case. Mọi tầng nền tảng có đều được kiểm ở đúng tầng đó:
 
 | Tầng | Đích | Case | Ở đâu |
 |---|---|---|---|
 | DB | SQLite mini-eats, đọc trực tiếp | 33 | `be/db` |
 | API | REST mini-eats — bốn app + vòng đời | 48 | `be/api` |
+| API | ranh giới phân quyền mini-eats (security) | 14 | `be/api` |
 | API | API công khai TheMealDB | 25 | `be/api` |
 | FE | các màn app mini-eats (Playwright) | 26 | `fe/ui` |
-| | **Tổng** | **132** | |
+| | **Tổng** | **146** | |
+
+**Tầng security** dò API như kẻ tấn công — request không token, token sai vai,
+token giả, hoặc token hợp lệ nhưng cho tài nguyên không phải của mình đều bị từ
+chối (401 chưa xác thực vs 403 bị cấm), kèm ca đối chứng dương để chắc đó là cổng
+thật chứ không phải endpoint hỏng. Dựng nó **phát hiện và vá 2 lỗ hổng thật**: "app
+merchant" trước đây **không hề xác thực** (ai cũng đẩy được đơn của mọi nhà hàng —
+leo thang đặc quyền) và bảng đơn lộ đơn của mọi nhà hàng cho bất kỳ ai. Giờ merchant
+là actor có xác thực thật, sở hữu nhà hàng của mình.
 
 `mini-eats` là nơi có các đường **ghi**. Một đơn chạy theo máy trạng thái —
 `placed → accepted → preparing → ready → picked_up → delivered`, với

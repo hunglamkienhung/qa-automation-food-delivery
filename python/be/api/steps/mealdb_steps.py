@@ -62,7 +62,12 @@ def looked_up(qa, mid):
 
 @when("the first filtered meal is looked up")
 def first_filtered_looked(qa):
-    fetch_or(qa, "looked", lambda: mealdb.lookup(qa.meal["filtered"][0]["idMeal"])["body"]["meals"])
+    def fn():
+        filtered = qa.meal.get("filtered") or []
+        if not filtered:
+            raise mealdb.MealDbUnreachable("the category filter returned no meals to look up")
+        return mealdb.lookup(filtered[0]["idMeal"])["body"]["meals"]
+    fetch_or(qa, "looked", fn)
 
 
 @when(parsers.parse('meals are searched by name "{term}"'))

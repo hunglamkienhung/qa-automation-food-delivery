@@ -15,12 +15,13 @@
 
 const BASE = (process.env.MINI_EATS_URL || 'http://127.0.0.1:8130').replace(/\/+$/, '');
 const ADMIN_TOKEN = process.env.MINI_EATS_ADMIN_TOKEN || 'admin-token';
-const SEED_DRIVER = 'drv_seed_alex';   // seeded, always present
+const SEED_DRIVER = 'drv_seed_alex';       // seeded, always present
+const SEED_MERCHANT = 'mch_seed_owner';    // seeded; owns restaurants 1, 2, 3
 
 class ApiUnreachable extends Error {}
 
 class MiniEats {
-  constructor(base = BASE) { this.base = base; this.adminToken = ADMIN_TOKEN; this.seedDriver = SEED_DRIVER; }
+  constructor(base = BASE) { this.base = base; this.adminToken = ADMIN_TOKEN; this.seedDriver = SEED_DRIVER; this.seedMerchant = SEED_MERCHANT; }
 
   async request(method, path, { token, body, headers = {} } = {}) {
     const h = { ...headers };
@@ -58,6 +59,12 @@ class MiniEats {
   }
   addItem(token, cartToken, itemId, qty) { return this.post(`/carts/${cartToken}/items`, { menu_item_id: itemId, qty }, { token }); }
   checkout(token, body) { return this.post('/orders', body, { token }); }
+  /** Register a fresh merchant (owns no restaurant); returns { id, token }. */
+  async newMerchant(name = 'Merchant') {
+    const r = await this.post('/merchants', { name });
+    if (r.status !== 201) throw new Error('create merchant failed: HTTP ' + r.status + ' ' + r.text);
+    return r.body;
+  }
 
   /** Place a delivered order end to end, returning the order id. Used to set up
    *  ledger/admin state. `lines` is [[qty, itemId], ...] on `restaurantId`. */
@@ -68,9 +75,9 @@ class MiniEats {
     const o = await this.checkout(cust.token, { cart_token: cart });
     if (o.status !== 201) throw new Error('checkout: ' + o.text);
     const id = o.body.id;
-    await this.post(`/orders/${id}/accept`);
-    await this.post(`/orders/${id}/prepare`);
-    await this.post(`/orders/${id}/ready`);
+    await this.post(`/orders/${id}/accept`, undefined, { token: this.seedMerchant });
+    await this.post(`/orders/${id}/prepare`, undefined, { token: this.seedMerchant });
+    await this.post(`/orders/${id}/ready`, undefined, { token: this.seedMerchant });
     await this.post(`/orders/${id}/assign`, undefined, { token: this.seedDriver });
     await this.post(`/orders/${id}/pickup`, undefined, { token: this.seedDriver });
     await this.post(`/orders/${id}/deliver`, undefined, { token: this.seedDriver });

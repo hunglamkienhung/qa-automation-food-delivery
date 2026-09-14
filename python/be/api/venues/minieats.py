@@ -14,6 +14,7 @@ import urllib.request
 BASE = os.environ.get("MINI_EATS_URL", "http://127.0.0.1:8130").rstrip("/")
 ADMIN_TOKEN = os.environ.get("MINI_EATS_ADMIN_TOKEN", "admin-token")
 SEED_DRIVER = "drv_seed_alex"
+SEED_MERCHANT = "mch_seed_owner"   # seeded; owns restaurants 1, 2, 3
 
 
 class ApiUnreachable(Exception):
@@ -25,6 +26,7 @@ class MiniEats:
         self.base = base
         self.admin_token = ADMIN_TOKEN
         self.seed_driver = SEED_DRIVER
+        self.seed_merchant = SEED_MERCHANT
 
     def request(self, method, path, token=None, body=None, headers=None):
         h = dict(headers or {})
@@ -69,6 +71,12 @@ class MiniEats:
             raise RuntimeError("create driver failed: HTTP " + str(r["status"]) + " " + r["text"])
         return r["body"]
 
+    def new_merchant(self, name="Merchant"):
+        r = self.post("/merchants", {"name": name})
+        if r["status"] != 201:
+            raise RuntimeError("create merchant failed: HTTP " + str(r["status"]) + " " + r["text"])
+        return r["body"]
+
     def open_cart(self, token, restaurant_id):
         r = self.post("/carts", {"restaurant_id": restaurant_id}, token=token)
         if r["status"] != 201:
@@ -92,9 +100,9 @@ class MiniEats:
         if o["status"] != 201:
             raise RuntimeError("checkout: " + o["text"])
         oid = o["body"]["id"]
-        self.post(f"/orders/{oid}/accept")
-        self.post(f"/orders/{oid}/prepare")
-        self.post(f"/orders/{oid}/ready")
+        self.post(f"/orders/{oid}/accept", token=self.seed_merchant)
+        self.post(f"/orders/{oid}/prepare", token=self.seed_merchant)
+        self.post(f"/orders/{oid}/ready", token=self.seed_merchant)
         self.post(f"/orders/{oid}/assign", token=self.seed_driver)
         self.post(f"/orders/{oid}/pickup", token=self.seed_driver)
         self.post(f"/orders/{oid}/deliver", token=self.seed_driver)

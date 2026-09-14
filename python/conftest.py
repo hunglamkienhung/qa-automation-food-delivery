@@ -11,6 +11,7 @@ from qa_core.recorder import qa, pytest_bdd_apply_tag, pytest_bdd_after_scenario
 pytest_plugins = [
     "be.db.steps.eats_steps",
     "be.api.steps.minieats_steps",
+    "be.api.steps.security_steps",
     "be.api.steps.mealdb_steps",
 ]
 

@@ -1,6 +1,6 @@
 # Food delivery — test cases
 
-132 cases across a self-written mini-eats service (a real SQLite store behind the customer, merchant, driver and admin apps) and the live TheMealDB API. Generated from `../features/*.feature` by `build.js`; do not edit by hand.
+146 cases across a self-written mini-eats service (a real SQLite store behind the customer, merchant, driver and admin apps) and the live TheMealDB API. Generated from `../features/*.feature` by `build.js`; do not edit by hand.
 
 ## minieats-db (33)
 
@@ -153,3 +153,22 @@
 | 130 | FE/UI | High | The admin page shows the revenue as a dollar amount |
 | 131 | FE/UI | High | The admin page counts a delivered order |
 | 132 | FE/UI | Medium | Every admin status count is a non-negative integer |
+
+## minieats-security (14)
+
+| ID | Layer | Priority | Title |
+|---|---|---|---|
+| 133 | BE/API | High | Advancing an order requires a merchant token |
+| 134 | BE/API | High | A merchant cannot advance an order at a restaurant it does not own |
+| 135 | BE/API | High | The owning merchant advances its own order |
+| 136 | BE/API | High | A customer token is not accepted as a merchant |
+| 137 | BE/API | High | A driver token is not accepted as a merchant |
+| 138 | BE/API | High | The order board requires authentication |
+| 139 | BE/API | High | A merchant cannot read another restaurant's board |
+| 140 | BE/API | Medium | The admin can read any restaurant's board |
+| 141 | BE/API | High | The admin overview rejects a non-admin token |
+| 142 | BE/API | High | The driver offers reject a non-driver token |
+| 143 | BE/API | High | A token that only looks like the admin token is rejected |
+| 144 | BE/API | High | A forged bearer token is refused on both a customer and a merchant route |
+| 145 | BE/API | Medium | Merchant onboarding is open and issues a token |
+| 146 | BE/API | Medium | An order response never carries a bearer token |

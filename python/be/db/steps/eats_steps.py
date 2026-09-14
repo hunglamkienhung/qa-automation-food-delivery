@@ -199,7 +199,7 @@ def delivered_order(qa, qty, iid, rid):
 
     def go():
         oid = qa.order_id
-        for step, tok in [("accept", None), ("prepare", None), ("ready", None), ("assign", eats.seed_driver), ("pickup", eats.seed_driver), ("deliver", eats.seed_driver)]:
+        for step, tok in [("accept", eats.seed_merchant), ("prepare", eats.seed_merchant), ("ready", eats.seed_merchant), ("assign", eats.seed_driver), ("pickup", eats.seed_driver), ("deliver", eats.seed_driver)]:
             r = eats.post(f"/orders/{oid}/{step}", token=tok) if tok else eats.post(f"/orders/{oid}/{step}")
             if r["status"] != 200:
                 raise RuntimeError(step + " failed: " + str(r["status"]) + " " + r["text"])
@@ -209,7 +209,7 @@ def delivered_order(qa, qty, iid, rid):
 @when("the merchant accepts the order")
 def merchant_accepts(qa):
     def go():
-        qa.last = eats.post(f"/orders/{qa.order_id}/accept")
+        qa.last = eats.post(f"/orders/{qa.order_id}/accept", token=eats.seed_merchant)
         qa.api = qa.last
     act(qa, go)
 
@@ -217,7 +217,7 @@ def merchant_accepts(qa):
 @when("the merchant rejects the order")
 def merchant_rejects(qa):
     def go():
-        qa.last = eats.post(f"/orders/{qa.order_id}/reject")
+        qa.last = eats.post(f"/orders/{qa.order_id}/reject", token=eats.seed_merchant)
         qa.api = qa.last
     act(qa, go)
 

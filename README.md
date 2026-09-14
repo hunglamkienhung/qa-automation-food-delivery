@@ -27,16 +27,26 @@ Nothing here needs an account, a key, or a paid service. Clone it and it runs.
 | **mini-eats** | read + write, real DB | A small delivery platform in `services/mini-eats`: one SQLite file, Node standard library only, a REST API backing four apps, and small labelled HTML pages for Playwright. |
 | **themealdb.com** | read-only, live | A live recipe API — the meals a restaurant might cook — which nobody here can tune to pass. |
 
-**132 cases**, each with an immutable ID, run in **both** stacks and reconciled
+**146 cases**, each with an immutable ID, run in **both** stacks and reconciled
 case-by-case. Every layer the platform has is tested at that layer:
 
 | Layer | Target | Cases | Where |
 |---|---|---|---|
 | DB | mini-eats SQLite, opened directly | 33 | `be/db` |
 | API | mini-eats REST — the four apps + the lifecycle | 48 | `be/api` |
+| API | mini-eats authorization boundaries (security) | 14 | `be/api` |
 | API | TheMealDB public API | 25 | `be/api` |
 | FE | mini-eats app surfaces (Playwright) | 26 | `fe/ui` |
-| | **Total** | **132** | |
+| | **Total** | **146** | |
+
+The **security tier** probes the API like an attacker — a request with no token,
+the wrong actor's token, a forged token, or a valid token for a resource that is
+not yours must be refused (401 unauthenticated vs 403 forbidden), with positive
+controls so a refusal is a real gate and not a broken endpoint. Building it
+surfaced, and then closed, two real holes: the "merchant app" was
+**unauthenticated** (anyone could advance any restaurant's orders — a
+privilege-escalation) and the order board leaked every restaurant's orders to
+anyone. A merchant is now a real authenticated actor that owns its restaurants.
 
 `mini-eats` is where the **write** paths live. An order runs a state machine —
 `placed → accepted → preparing → ready → picked_up → delivered`, with

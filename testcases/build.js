@@ -32,6 +32,7 @@ const LAYER = (tags) => {
 };
 const TIER = (tags) => {
   for (const t of tags) if (t.startsWith('@tier:')) return t.slice(6);
+  if (tags.has('@minieats') && tags.has('@security')) return 'minieats-security';
   if (tags.has('@minieats') && tags.has('@db')) return 'minieats-db';
   if (tags.has('@minieats') && tags.has('@api')) return 'minieats-api';
   if (tags.has('@minieats') && tags.has('@fe')) return 'minieats-fe';
@@ -96,6 +97,7 @@ function main() {
       targets: {
         'minieats-db': 'mini-eats SQLite, written by the service (be/db, both stacks open the same file)',
         'minieats-api': 'mini-eats REST over that SQLite -- the customer, merchant, driver and admin apps (be/api)',
+        'minieats-security': 'mini-eats authorization boundaries -- no/wrong/forged token, cross-actor access (be/api)',
         'minieats-fe': 'mini-eats HTML pages for the four app surfaces (Playwright)',
         'mealdb-api': 'themealdb.com public API (no key)',
       },

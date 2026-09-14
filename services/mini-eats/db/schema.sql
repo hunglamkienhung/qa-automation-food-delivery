@@ -14,10 +14,23 @@
 PRAGMA journal_mode = WAL;
 PRAGMA foreign_keys = ON;
 
+-- A merchant owns one or more restaurants; its bearer token is the only thing
+-- allowed to advance that restaurant's orders (accept -> ... -> ready) and to
+-- read its order board. Without this, the "merchant app" is unauthenticated --
+-- anyone could push any restaurant's orders, a privilege-escalation hole the
+-- security tier closes.
+CREATE TABLE IF NOT EXISTS merchants (
+  id          INTEGER PRIMARY KEY,
+  name        TEXT    NOT NULL,
+  token       TEXT    UNIQUE,
+  created_at  INTEGER NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS restaurants (
   id             INTEGER PRIMARY KEY,
   name           TEXT    NOT NULL,
   cuisine        TEXT    NOT NULL,
+  merchant_id    INTEGER REFERENCES merchants(id),   -- the owning merchant (NULL until claimed)
   commission_bps INTEGER NOT NULL DEFAULT 2000 CHECK (commission_bps >= 0 AND commission_bps <= 10000),
   active         INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0, 1))
 );

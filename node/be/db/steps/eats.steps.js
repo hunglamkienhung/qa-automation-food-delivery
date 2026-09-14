@@ -105,15 +105,15 @@ Given('a delivered order of {int} of item {int} at restaurant {int}', { timeout:
   await placeOrder(this, rid, [[qty, iid]]);
   await act(this, async () => {
     const id = this.orderId;
-    for (const [step, tok] of [['accept'], ['prepare'], ['ready'], ['assign', eats.seedDriver], ['pickup', eats.seedDriver], ['deliver', eats.seedDriver]]) {
+    for (const [step, tok] of [['accept', eats.seedMerchant], ['prepare', eats.seedMerchant], ['ready', eats.seedMerchant], ['assign', eats.seedDriver], ['pickup', eats.seedDriver], ['deliver', eats.seedDriver]]) {
       const r = await eats.post(`/orders/${id}/${step}`, undefined, tok ? { token: tok } : {});
       if (r.status !== 200) throw new Error(step + ' failed: ' + r.status + ' ' + r.text);
     }
   });
 });
 
-When('the merchant accepts the order', { timeout: 30_000 }, async function () { await act(this, async () => { this.last = await eats.post(`/orders/${this.orderId}/accept`); this.api = this.last; }); });
-When('the merchant rejects the order', { timeout: 30_000 }, async function () { await act(this, async () => { this.last = await eats.post(`/orders/${this.orderId}/reject`); this.api = this.last; }); });
+When('the merchant accepts the order', { timeout: 30_000 }, async function () { await act(this, async () => { this.last = await eats.post(`/orders/${this.orderId}/accept`, undefined, { token: eats.seedMerchant }); this.api = this.last; }); });
+When('the merchant rejects the order', { timeout: 30_000 }, async function () { await act(this, async () => { this.last = await eats.post(`/orders/${this.orderId}/reject`, undefined, { token: eats.seedMerchant }); this.api = this.last; }); });
 When('the customer cancels the order', { timeout: 30_000 }, async function () { await act(this, async () => { this.last = await eats.post(`/orders/${this.orderId}/cancel`, undefined, { token: this.buyer.token }); this.api = this.last; }); });
 
 function order(world) { return world.last && world.last.body && world.last.status === 201 ? world.last.body : null; }

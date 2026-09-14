@@ -26,7 +26,7 @@ When('the meal categories are fetched', { timeout: 30_000 }, async function () {
 When('the meal categories are fetched again', { timeout: 30_000 }, async function () { await fetchOr(this, 'categories2', async () => (await mealdb.categories()).body.categories); });
 When('meals are filtered by category {string}', { timeout: 30_000 }, async function (cat) { await fetchOr(this, 'filtered', async () => (await mealdb.filterByCategory(cat)).body.meals); });
 When('the meal with id {int} is looked up', { timeout: 30_000 }, async function (id) { await fetchOr(this, 'looked', async () => (await mealdb.lookup(id)).body.meals); });
-When('the first filtered meal is looked up', { timeout: 30_000 }, async function () { await fetchOr(this, 'looked', async () => { const id = this.meal.filtered[0].idMeal; return (await mealdb.lookup(id)).body.meals; }); });
+When('the first filtered meal is looked up', { timeout: 30_000 }, async function () { await fetchOr(this, 'looked', async () => { const first = (this.meal.filtered || [])[0]; if (!first) throw new mealdb.MealDbUnreachable('the category filter returned no meals to look up'); return (await mealdb.lookup(first.idMeal)).body.meals; }); });
 When('meals are searched by name {string}', { timeout: 30_000 }, async function (term) { await fetchOr(this, 'search', async () => (await mealdb.searchByName(term)).body.meals); });
 When('meals are searched by first letter {string}', { timeout: 30_000 }, async function (letter) { await fetchOr(this, 'search', async () => (await mealdb.searchByLetter(letter)).body.meals); });
 When('the meal category names are listed', { timeout: 30_000 }, async function () { await fetchOr(this, 'catNames', async () => (await mealdb.listCategoryNames()).body.meals); });

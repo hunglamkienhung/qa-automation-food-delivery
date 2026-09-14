@@ -118,24 +118,45 @@ def order_fetched(qa):
 
 @when("the merchant prepares the order")
 def merchant_prepares(qa):
-    send(qa, "POST", f"/orders/{qa.order_id}/prepare")
+    send(qa, "POST", f"/orders/{qa.order_id}/prepare", token=eats.seed_merchant)
 
 
 @when("the merchant marks the order ready")
 def merchant_ready(qa):
-    send(qa, "POST", f"/orders/{qa.order_id}/ready")
+    send(qa, "POST", f"/orders/{qa.order_id}/ready", token=eats.seed_merchant)
 
 
 @given("the merchant has accepted the order")
 def merchant_has_accepted(qa):
-    send(qa, "POST", f"/orders/{qa.order_id}/accept")
+    send(qa, "POST", f"/orders/{qa.order_id}/accept", token=eats.seed_merchant)
+
+
+@when(parsers.parse("the merchant reads restaurant {rid:d}'s board"))
+def merchant_reads_board(qa, rid):
+    send(qa, "GET", f"/restaurants/{rid}/orders", token=eats.seed_merchant)
+
+
+@when(parsers.parse("the merchant reads restaurant {rid:d}'s board with status \"{status}\""))
+def merchant_reads_board_status(qa, rid, status):
+    send(qa, "GET", f"/restaurants/{rid}/orders?status={status}", token=eats.seed_merchant)
+
+
+@when(parsers.parse("the board of restaurant {rid:d} is read with no token"))
+def board_no_token(qa, rid):
+    send(qa, "GET", f"/restaurants/{rid}/orders")
+
+
+@when(parsers.parse("another merchant reads restaurant {rid:d}'s board"))
+def another_merchant_board(qa, rid):
+    other = eats.new_merchant()
+    send(qa, "GET", f"/restaurants/{rid}/orders", token=other["token"])
 
 
 def drive_to_ready(qa):
     if qa.source_error:
         return
     for step in ("accept", "prepare", "ready"):
-        r = eats.post(f"/orders/{qa.order_id}/{step}")
+        r = eats.post(f"/orders/{qa.order_id}/{step}", token=eats.seed_merchant)
         if r["status"] != 200:
             raise RuntimeError(step + ": " + r["text"])
 

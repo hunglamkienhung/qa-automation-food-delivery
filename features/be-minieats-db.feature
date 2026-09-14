@@ -20,7 +20,7 @@ Feature: The mini-eats store, read directly
 
   @case:1 @priority:high
   Scenario: The store has the documented tables
-    Then the store has tables restaurants, menu_items, customers, drivers, carts, cart_items, orders, order_items, order_events, ledger
+    Then the store has tables restaurants, merchants, menu_items, customers, drivers, carts, cart_items, orders, order_items, order_events, ledger
 
   @case:2 @priority:high
   Scenario: A menu item name is unique within its restaurant

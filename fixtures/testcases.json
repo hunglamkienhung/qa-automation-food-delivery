@@ -4,11 +4,12 @@
     "targets": {
       "minieats-db": "mini-eats SQLite, written by the service (be/db, both stacks open the same file)",
       "minieats-api": "mini-eats REST over that SQLite -- the customer, merchant, driver and admin apps (be/api)",
+      "minieats-security": "mini-eats authorization boundaries -- no/wrong/forged token, cross-actor access (be/api)",
       "minieats-fe": "mini-eats HTML pages for the four app surfaces (Playwright)",
       "mealdb-api": "themealdb.com public API (no key)"
     },
     "idPolicy": "immutable",
-    "nextId": 133,
+    "nextId": 147,
     "note": "Generated from features/*.feature by testcases/build.js. Every scenario carries @case:N; an N missing here is an error."
   },
   "cases": {
@@ -19,7 +20,7 @@
       "title": "The store has the documented tables",
       "priority": "High",
       "steps": [
-        "Then the store has tables restaurants, menu_items, customers, drivers, carts, cart_items, orders, order_items, order_events, ledger"
+        "Then the store has tables restaurants, merchants, menu_items, customers, drivers, carts, cart_items, orders, order_items, order_events, ledger"
       ]
     },
     "2": {
@@ -909,7 +910,7 @@
       "priority": "Medium",
       "steps": [
         "Given a placed order of 1 of item 1 at restaurant 1",
-        "When GET /restaurants/1/orders",
+        "When the merchant reads restaurant 1's board",
         "Then the response status is 200",
         "And the placed order appears on the restaurant's board"
       ]
@@ -922,7 +923,7 @@
       "priority": "Medium",
       "steps": [
         "Given a placed order of 1 of item 1 at restaurant 1",
-        "When GET /restaurants/1/orders?status=placed",
+        "When the merchant reads restaurant 1's board with status \"placed\"",
         "Then every order on the board reports status \"placed\""
       ]
     },
@@ -1638,6 +1639,178 @@
       "steps": [
         "When the admin page is opened",
         "Then every admin status count is a non-negative integer"
+      ]
+    },
+    "133": {
+      "module": "05-minieats-security",
+      "layer": "BE/API",
+      "tier": "minieats-security",
+      "title": "Advancing an order requires a merchant token",
+      "priority": "High",
+      "steps": [
+        "Given a placed order of 1 of item 1 at restaurant 1",
+        "When the order is accepted with no token",
+        "Then the response status is 401",
+        "And the response is an error with code \"unauthenticated\""
+      ]
+    },
+    "134": {
+      "module": "05-minieats-security",
+      "layer": "BE/API",
+      "tier": "minieats-security",
+      "title": "A merchant cannot advance an order at a restaurant it does not own",
+      "priority": "High",
+      "steps": [
+        "Given a placed order of 1 of item 1 at restaurant 1",
+        "When a merchant who owns no restaurant accepts the order",
+        "Then the response status is 403",
+        "And the response is an error with code \"forbidden\""
+      ]
+    },
+    "135": {
+      "module": "05-minieats-security",
+      "layer": "BE/API",
+      "tier": "minieats-security",
+      "title": "The owning merchant advances its own order",
+      "priority": "High",
+      "steps": [
+        "Given a placed order of 1 of item 1 at restaurant 1",
+        "When the merchant accepts the order",
+        "Then the response status is 200",
+        "And the order in the response reports status \"accepted\""
+      ]
+    },
+    "136": {
+      "module": "05-minieats-security",
+      "layer": "BE/API",
+      "tier": "minieats-security",
+      "title": "A customer token is not accepted as a merchant",
+      "priority": "High",
+      "steps": [
+        "Given a placed order of 1 of item 1 at restaurant 1",
+        "When the customer tries to accept the order",
+        "Then the response status is 401"
+      ]
+    },
+    "137": {
+      "module": "05-minieats-security",
+      "layer": "BE/API",
+      "tier": "minieats-security",
+      "title": "A driver token is not accepted as a merchant",
+      "priority": "High",
+      "steps": [
+        "Given a placed order of 1 of item 1 at restaurant 1",
+        "When a driver tries to accept the order",
+        "Then the response status is 401"
+      ]
+    },
+    "138": {
+      "module": "05-minieats-security",
+      "layer": "BE/API",
+      "tier": "minieats-security",
+      "title": "The order board requires authentication",
+      "priority": "High",
+      "steps": [
+        "Given a placed order of 1 of item 1 at restaurant 1",
+        "When the board of restaurant 1 is read with no token",
+        "Then the response status is 401"
+      ]
+    },
+    "139": {
+      "module": "05-minieats-security",
+      "layer": "BE/API",
+      "tier": "minieats-security",
+      "title": "A merchant cannot read another restaurant's board",
+      "priority": "High",
+      "steps": [
+        "When another merchant reads restaurant 1's board",
+        "Then the response status is 403",
+        "And the response is an error with code \"forbidden\""
+      ]
+    },
+    "140": {
+      "module": "05-minieats-security",
+      "layer": "BE/API",
+      "tier": "minieats-security",
+      "title": "The admin can read any restaurant's board",
+      "priority": "Medium",
+      "steps": [
+        "Given a placed order of 1 of item 1 at restaurant 1",
+        "When the admin reads restaurant 1's board",
+        "Then the response status is 200",
+        "And the placed order appears on the restaurant's board"
+      ]
+    },
+    "141": {
+      "module": "05-minieats-security",
+      "layer": "BE/API",
+      "tier": "minieats-security",
+      "title": "The admin overview rejects a non-admin token",
+      "priority": "High",
+      "steps": [
+        "Given a registered customer",
+        "When the admin overview is read with the customer's token",
+        "Then the response status is 401"
+      ]
+    },
+    "142": {
+      "module": "05-minieats-security",
+      "layer": "BE/API",
+      "tier": "minieats-security",
+      "title": "The driver offers reject a non-driver token",
+      "priority": "High",
+      "steps": [
+        "Given a registered customer",
+        "When the offers are read with the customer's token",
+        "Then the response status is 401"
+      ]
+    },
+    "143": {
+      "module": "05-minieats-security",
+      "layer": "BE/API",
+      "tier": "minieats-security",
+      "title": "A token that only looks like the admin token is rejected",
+      "priority": "High",
+      "steps": [
+        "When the admin overview is read with a token that extends the admin token",
+        "Then the response status is 401"
+      ]
+    },
+    "144": {
+      "module": "05-minieats-security",
+      "layer": "BE/API",
+      "tier": "minieats-security",
+      "title": "A forged bearer token is refused on both a customer and a merchant route",
+      "priority": "High",
+      "steps": [
+        "Given a placed order of 1 of item 1 at restaurant 1",
+        "When a cart is opened with a forged token",
+        "Then the response status is 401",
+        "When the order is accepted with a forged token",
+        "Then the response status is 401"
+      ]
+    },
+    "145": {
+      "module": "05-minieats-security",
+      "layer": "BE/API",
+      "tier": "minieats-security",
+      "title": "Merchant onboarding is open and issues a token",
+      "priority": "Medium",
+      "steps": [
+        "When a merchant registers",
+        "Then the response status is 201",
+        "And the response carries a token"
+      ]
+    },
+    "146": {
+      "module": "05-minieats-security",
+      "layer": "BE/API",
+      "tier": "minieats-security",
+      "title": "An order response never carries a bearer token",
+      "priority": "Medium",
+      "steps": [
+        "Given a placed order of 1 of item 1 at restaurant 1",
+        "Then the order response body contains no bearer token"
       ]
     }
   }

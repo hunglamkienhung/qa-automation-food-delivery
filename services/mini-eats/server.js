@@ -66,6 +66,8 @@ function main() {
     customerByToken: db.prepare('SELECT * FROM customers WHERE token = ?'),
     insDriver: db.prepare('INSERT INTO drivers (name, token, status, created_at) VALUES (?, ?, \'available\', ?)'),
     driverByToken: db.prepare('SELECT * FROM drivers WHERE token = ?'),
+    insMerchant: db.prepare('INSERT INTO merchants (name, token, created_at) VALUES (?, ?, ?)'),
+    merchantByToken: db.prepare('SELECT * FROM merchants WHERE token = ?'),
     setDriverStatus: db.prepare('UPDATE drivers SET status = ? WHERE id = ?'),
     insCart: db.prepare('INSERT INTO carts (token, customer_id, restaurant_id, status, created_at) VALUES (?, ?, ?, \'open\', ?)'),
     cart: db.prepare('SELECT * FROM carts WHERE token = ?'),
@@ -98,7 +100,17 @@ function main() {
   const tx = (fn) => { db.exec('BEGIN IMMEDIATE'); try { const r = fn(); db.exec('COMMIT'); return r; } catch (e) { db.exec('ROLLBACK'); throw e; } };
   function requireCustomer(req) { const m = /^Bearer\s+(\S+)$/i.exec(req.headers.authorization || ''); const c = m && q.customerByToken.get(m[1]); if (!c) throw new H.ApiError(401, 'unauthenticated', 'a customer Bearer token is required'); return c; }
   function requireDriver(req) { const m = /^Bearer\s+(\S+)$/i.exec(req.headers.authorization || ''); const d = m && q.driverByToken.get(m[1]); if (!d) throw new H.ApiError(401, 'unauthenticated', 'a driver Bearer token is required'); return d; }
-  function requireAdmin(req) { const m = /^Bearer\s+(\S+)$/i.exec(req.headers.authorization || ''); if (!m || m[1] !== cfg.adminToken) throw new H.ApiError(401, 'unauthenticated', 'the admin token is required'); }
+  function requireMerchant(req) { const m = /^Bearer\s+(\S+)$/i.exec(req.headers.authorization || ''); const mer = m && q.merchantByToken.get(m[1]); if (!mer) throw new H.ApiError(401, 'unauthenticated', 'a merchant Bearer token is required'); return mer; }
+  function isAdmin(req) { const m = /^Bearer\s+(\S+)$/i.exec(req.headers.authorization || ''); return !!m && m[1] === cfg.adminToken; }
+  function requireAdmin(req) { if (!isAdmin(req)) throw new H.ApiError(401, 'unauthenticated', 'the admin token is required'); }
+  /** The merchant that owns this restaurant must be the caller (or the admin). 401 if not authenticated, 403 if the wrong merchant. */
+  function requireRestaurantOwner(req, restaurantId) {
+    if (isAdmin(req)) return;
+    const mer = requireMerchant(req);
+    const r = q.restaurant.get(Number(restaurantId));
+    if (!r || r.merchant_id !== mer.id) throw new H.ApiError(403, 'forbidden', 'this restaurant is not yours');
+    return mer;
+  }
 
   /** Apply a lifecycle transition to an order, or reject it. Inside a transaction. */
   function transition(order, action) {
@@ -139,7 +151,7 @@ function main() {
     if (req.method === 'GET' && a === 'restaurants' && !b) return json(res, 200, { restaurants: q.restaurants.all().map((r) => ({ id: r.id, name: r.name, cuisine: r.cuisine, commission_bps: r.commission_bps })) });
     if (req.method === 'GET' && a === 'restaurants' && b && !c) { const r = q.restaurant.get(Number(b)); if (!r || !r.active) throw new H.ApiError(404, 'not_found', 'no such restaurant'); return json(res, 200, { id: r.id, name: r.name, cuisine: r.cuisine }); }
     if (req.method === 'GET' && a === 'restaurants' && b && c === 'menu') { const r = q.restaurant.get(Number(b)); if (!r) throw new H.ApiError(404, 'not_found', 'no such restaurant'); return json(res, 200, { restaurant_id: r.id, menu: q.menu.all(r.id).map(menuView) }); }
-    if (req.method === 'GET' && a === 'restaurants' && b && c === 'orders') { const status = url.searchParams.get('status'); let rows = q.ordersByRestaurant.all(Number(b)); if (status) rows = rows.filter((o) => o.status === status); return json(res, 200, { restaurant_id: Number(b), orders: rows.map(orderView) }); }
+    if (req.method === 'GET' && a === 'restaurants' && b && c === 'orders') { requireRestaurantOwner(req, b); const status = url.searchParams.get('status'); let rows = q.ordersByRestaurant.all(Number(b)); if (status) rows = rows.filter((o) => o.status === status); return json(res, 200, { restaurant_id: Number(b), orders: rows.map(orderView) }); }
 
     // ---- customer ----
     if (req.method === 'POST' && a === 'customers' && !b) { const body = await readBody(req); const tok = H.token('cust'); const info = q.insCustomer.run(String(body.name || 'Diner'), tok, now()); return json(res, 201, { id: Number(info.lastInsertRowid), token: tok }); }
@@ -193,10 +205,13 @@ function main() {
       const order = q.order.get(Number(b));
       if (!order) throw new H.ApiError(404, 'not_found', 'no such order');
       if (c === 'cancel') { const cust = requireCustomer(req); if (order.customer_id !== cust.id) throw new H.ApiError(403, 'forbidden', 'not your order'); tx(() => transition(order, 'cancel')); return json(res, 200, orderView(q.order.get(order.id))); }
-      if (['accept', 'reject', 'prepare', 'ready'].includes(c)) { tx(() => transition(order, c)); return json(res, 200, orderView(q.order.get(order.id))); }  // merchant
+      if (['accept', 'reject', 'prepare', 'ready'].includes(c)) { requireRestaurantOwner(req, order.restaurant_id); tx(() => transition(order, c)); return json(res, 200, orderView(q.order.get(order.id))); }  // merchant
       if (c === 'assign') { const drv = requireDriver(req); if (order.status !== 'ready') throw new H.ApiError(409, 'bad_state', 'order is not ready', { status: order.status }); if (order.driver_id) throw new H.ApiError(409, 'already_assigned', 'order already has a driver'); tx(() => { q.setOrderDriver.run(drv.id, order.id); q.setDriverStatus.run('busy', drv.id); q.insEvent.run(order.id, 'ready', 'assigned', 'driver', now()); }); return json(res, 200, orderView(q.order.get(order.id))); }
       if (c === 'pickup' || c === 'deliver') { const drv = requireDriver(req); if (order.driver_id !== drv.id) throw new H.ApiError(403, 'forbidden', 'not the assigned driver'); tx(() => transition(order, c)); return json(res, 200, orderView(q.order.get(order.id))); }
     }
+
+    // ---- merchant ----
+    if (req.method === 'POST' && a === 'merchants' && !b) { const body = await readBody(req); const tok = H.token('mch'); const info = q.insMerchant.run(String(body.name || 'Merchant'), tok, now()); return json(res, 201, { id: Number(info.lastInsertRowid), token: tok }); }
 
     // ---- driver ----
     if (req.method === 'POST' && a === 'drivers' && !b) { const body = await readBody(req); const tok = H.token('drv'); const info = q.insDriver.run(String(body.name || 'Driver'), tok, now()); return json(res, 201, { id: Number(info.lastInsertRowid), token: tok }); }
