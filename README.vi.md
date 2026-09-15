@@ -27,17 +27,17 @@ Không cần tài khoản, không cần key, không cần dịch vụ trả phí
 | **mini-eats** | đọc + ghi, DB thật | Nền tảng giao hàng nhỏ trong `services/mini-eats`: một file SQLite, chỉ dùng thư viện chuẩn của Node, REST API phục vụ bốn app, và các trang HTML gắn nhãn cho Playwright. |
 | **themealdb.com** | chỉ đọc, live | API công thức món ăn live — những món một nhà hàng có thể nấu — không ai chỉnh cho nó "pass" được. |
 
-**146 case**, mỗi case một ID bất biến, chạy trên **cả hai** stack và đối chiếu
+**1000 case**, mỗi case một ID bất biến, chạy trên **cả hai** stack và đối chiếu
 từng case. Mọi tầng nền tảng có đều được kiểm ở đúng tầng đó:
 
 | Tầng | Đích | Case | Ở đâu |
 |---|---|---|---|
 | DB | SQLite mini-eats, đọc trực tiếp | 33 | `be/db` |
-| API | REST mini-eats — bốn app + vòng đời | 48 | `be/api` |
+| API | REST mini-eats — bốn app + vòng đời | 902 | `be/api` |
 | API | ranh giới phân quyền mini-eats (security) | 14 | `be/api` |
 | API | API công khai TheMealDB | 25 | `be/api` |
 | FE | các màn app mini-eats (Playwright) | 26 | `fe/ui` |
-| | **Tổng** | **146** | |
+| | **Tổng** | **1000** | |
 
 **Tầng security** dò API như kẻ tấn công — request không token, token sai vai,
 token giả, hoặc token hợp lệ nhưng cho tài nguyên không phải của mình đều bị từ
